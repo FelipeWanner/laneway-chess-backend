@@ -1,25 +1,32 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+//arquivo gerado automaticamente pelo sequelize, porem eu pedi pro
+//GPT adaptar o mesmo arquivo para uma versao mais legivel
+
+const { Model, DataTypes } = require('sequelize');
+
+module.exports = (sequelize) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
+    // You can define custom methods here if needed
   }
+
   User.init({
-    username: DataTypes.STRING,
-    email: DataTypes.STRING,
-    password: DataTypes.STRING
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
   }, {
     sequelize,
-    modelName: 'User',
+    modelName: 'User'
   });
+
   return User;
 };

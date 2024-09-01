@@ -1,13 +1,17 @@
 const express = require('express');
-const app = express();
-const port = process.env.PORT || 4505;
+const dotenv = require('dotenv');
 
+// Load environment variables
+dotenv.config();
+
+const app = express();
+
+// Middleware to parse JSON bodies
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+// Define routes
+app.use('/api/auth', require('./routes/auth'));
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
