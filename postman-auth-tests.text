@@ -1,0 +1,165 @@
+To ensure that the authentication and token refresh functionality works correctly, 
+you'll want to perform a series of tests using Postman. 
+Here’s a step-by-step guide on the tests you should perform and how to do them:
+
+1 Register a New User
+Test Purpose: Verify that the user registration endpoint works and returns both an 
+access token and a refresh token.
+
+Open Postman and create a new POST request.
+
+Set the URL to http://localhost:5000/api/register.
+
+Go to the Body tab:
+
+Select raw and choose JSON from the dropdown.
+Add the Request Body:
+
+json
+Copy code
+{
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "password": "TestPassword123"
+}
+
+Send the Request.
+
+Check the Response:
+
+Ensure you receive both accessToken and refreshToken in the response body.
+The status should be 200 OK.
+
+=====================================================================================================
+
+2. Log In with the Registered User
+Test Purpose: Ensure that the login endpoint works and returns new tokens.
+
+Create a new POST request in Postman.
+
+Set the URL to http://localhost:5000/api/login.
+
+Go to the Body tab:
+
+Select raw and choose JSON.
+Add the Request Body:
+
+json
+Copy code
+{
+  "email": "testuser@example.com",
+  "password": "TestPassword123"
+}
+Send the Request.
+
+Check the Response:
+
+Ensure you receive both accessToken and refreshToken in the response.
+The status should be 200 OK.
+
+=====================================================================================================
+
+3. Access a Protected Route with the Access Token
+Test Purpose: Verify that the access token works for accessing protected routes.
+
+Create a new GET request in Postman.
+Set the URL to http://localhost:5000/api/profile/me.
+
+Go to the Headers tab:
+
+Add a header with 
+Key: x-auth-token and 
+Value: [your_access_token] (copy the access token from the login or register response).
+
+Send the Request.
+
+Check the Response:
+The status should be 200 OK, and you should receive the user's profile data in the response.
+
+=====================================================================================================
+
+4. Test Access Without a Token
+Test Purpose: Ensure that access to protected routes is denied when no token is provided.
+
+Create a new GET request in Postman.
+
+Set the URL to http://localhost:5000/api/profile/me.
+
+Do not include any headers.
+
+Send the Request.
+
+Check the Response:
+
+The status should be 401 Unauthorized, with a message like "No token, authorization denied".
+
+=====================================================================================================
+
+5. Test Access with an Invalid Token
+Test Purpose: Ensure that access is denied when an invalid token is provided.
+
+Create a new GET request in Postman.
+
+Set the URL to http://localhost:5000/api/profile/me.
+
+Go to the Headers tab:
+
+Add a header with 
+Key: x-auth-token and 
+Value: InvalidTokenHere.
+
+Send the Request.
+
+Check the Response:
+
+The status should be 401 Unauthorized, with a message like "Token is not valid".
+
+=====================================================================================================
+
+6. Refresh the Access Token Using the Refresh Token
+Test Purpose: Ensure that you can generate a new access token using the refresh token.
+
+Create a new POST request in Postman.
+
+Set the URL to http://localhost:5000/api/token.
+
+Go to the Body tab:
+
+Select raw and choose JSON.
+Add the Request Body:
+
+json
+Copy code
+{
+  "refreshToken": "[your_refresh_token]" // Replace with the actual refresh token you received earlier
+}
+
+Send the Request.
+
+Check the Response:
+
+The status should be 200 OK, and you should receive a new accessToken in the response.
+
+=====================================================================================================
+
+7. Test Token Refresh Handling Near Expiration
+Test Purpose: Ensure that the refresh token is updated if it's close to expiration.
+
+Manually modify the expiration time of the refresh token (e.g., set it to expire in the next few seconds) in your database for testing.
+
+Use the shortened refresh token to request a new access token by repeating the steps in the previous test.
+
+Check if a new refresh token is returned in the response headers.
+
+The response should include a new refresh token if the original one was close to expiration.
+
+=====================================================================================================
+
+Summary of Tests:
+Register a New User: Ensure user registration returns tokens.
+Log In: Ensure login returns new tokens.
+Access Protected Route: Test access with a valid token.
+Access Without a Token: Confirm that access is denied.
+Access with an Invalid Token: Confirm that access is denied.
+Refresh Token: Ensure you can get a new access token using a refresh token.
+Near Expiration Handling: Verify that the refresh token is renewed close to expiration.

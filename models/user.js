@@ -22,6 +22,10 @@ module.exports = (sequelize) => {
     password: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    refreshToken: {
+      type: DataTypes.STRING,
+      allowNull: true // This can be true or false depending on your preference
     }
   }, {
     sequelize,
