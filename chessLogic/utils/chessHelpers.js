@@ -7,10 +7,7 @@ const isWithinBoard = (position) => {
   };
   
  // Pawn movement rules with en passant
-const validatePawnMove = (from, to, color, boardState, lastMove) => {
-  //console.log("Pawn move attempt:");
-  //console.log("Board State ANTES de mover o peao:", JSON.parse(JSON.stringify(boardState)));
-
+ const validatePawnMove = (from, to, color, boardState, lastMove) => {
   const [fromRow, fromCol] = from;
   const [toRow, toCol] = to;
   const direction = color === 'white' ? -1 : 1;
@@ -48,18 +45,31 @@ const validatePawnMove = (from, to, color, boardState, lastMove) => {
     isValidMove = true;
   }
 
+  // Handle regular move and promotion together
   if (isValidMove) {
-    const updatedBoardState = boardState.map(row => row.slice()); // Deep copy
-    updatedBoardState[toRow][toCol] = { type: 'pawn', color: color };
-    updatedBoardState[fromRow][fromCol] = null;
+    const promotionRank = color === 'white' ? 0 : 7;
 
-    //console.log("Board State DEPOIS de mover o peao:", JSON.parse(JSON.stringify(updatedBoardState)));
-    return true;
-  } else {
-    //console.log("Invalid pawn move");
-    return false;
+    // Promotion check
+    if (toRow === promotionRank) {
+      boardState[toRow][toCol] = {
+        type: 'queen', // Default promotion to a queen
+        color,
+      };
+      console.log(`Pawn promoted to a queen at ${toRow}, ${toCol}`);
+    } else {
+      // Regular move
+      boardState[toRow][toCol] = boardState[fromRow][fromCol];
+    }
+
+    boardState[fromRow][fromCol] = null; // Clear the old position
+    console.log("Updated Board State (after move):", boardState);
+    return true; // Indicate valid move
   }
+
+  return false; // Indicate invalid move
 };
+
+
 
 // En Passant validation
 const validateEnPassant = (from, to, color, boardState, lastMove) => {

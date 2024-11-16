@@ -54,8 +54,48 @@ router.post('/move', (req, res) => {
     // Move the piece if the move is valid
     const [fromRow, fromCol] = fromPosition;
     const [toRow, toCol] = toPosition;
-    boardState[toRow][toCol] = piece;
-    boardState[fromRow][fromCol] = null;
+  
+    // Check if the move involves a pawn promotion
+    if (piece.type === 'pawn') {
+      const promotionRank = piece.color === 'white' ? 0 : 7;
+  
+      if (toRow === promotionRank) {
+        // Handle promotion
+        boardState[toRow][toCol] = {
+          type: 'queen', // Default promotion to a queen
+          color: piece.color,
+        };
+        boardState[fromRow][fromCol] = null; // Clear the pawn
+        console.log(`Pawn promoted to a queen at ${toRow}, ${toCol}`);
+      } else {
+        // Handle regular pawn move
+        boardState[toRow][toCol] = piece;
+        boardState[fromRow][fromCol] = null;
+      }
+    } else {
+      // Handle other piece moves (regular logic)
+      boardState[toRow][toCol] = piece;
+      boardState[fromRow][fromCol] = null;
+  
+      // Handle rook movement during castling
+      if (piece.type === 'king' && Math.abs(toCol - fromCol) === 2) {
+        const isKingSide = toCol > fromCol;
+        const rookFromCol = isKingSide ? 7 : 0;
+        const rookToCol = isKingSide ? toCol - 1 : toCol + 1;
+        const rookPiece = boardState[fromRow][rookFromCol];
+  
+        // Move the rook
+        boardState[fromRow][rookToCol] = rookPiece;
+        boardState[fromRow][rookFromCol] = null;
+  
+        // Update rook moved flag
+        if (piece.color === 'white') {
+          moveFlags.hasWhiteRookMoved[isKingSide ? 'kingSide' : 'queenSide'] = true;
+        } else {
+          moveFlags.hasBlackRookMoved[isKingSide ? 'kingSide' : 'queenSide'] = true;
+        }
+      }
+    }
   
     // Update lastMove for en passant tracking
     lastMove = { from: fromPosition, to: toPosition, piece };
@@ -76,25 +116,7 @@ router.post('/move', (req, res) => {
       }
     }
   
-    // Handle rook movement during castling
-    if (piece.type === 'king' && Math.abs(toCol - fromCol) === 2) {
-      const isKingSide = toCol > fromCol;
-      const rookFromCol = isKingSide ? 7 : 0;
-      const rookToCol = isKingSide ? toCol - 1 : toCol + 1;
-      const rookPiece = boardState[fromRow][rookFromCol];
-  
-      // Move the rook
-      boardState[fromRow][rookToCol] = rookPiece;
-      boardState[fromRow][rookFromCol] = null;
-  
-      // Update rook moved flag
-      if (piece.color === 'white') {
-        moveFlags.hasWhiteRookMoved[isKingSide ? 'kingSide' : 'queenSide'] = true;
-      } else {
-        moveFlags.hasBlackRookMoved[isKingSide ? 'kingSide' : 'queenSide'] = true;
-      }
-    }
-  
+    console.log("testanndo se o back esta enviando o boardState atualizado:", boardState);
     res.status(200).json({ valid: true, boardState }); // Send the updated board back to the frontend
   } else {
     res.status(400).json({ valid: false, message: 'Invalid move' });
