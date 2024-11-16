@@ -1,23 +1,20 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const auth = require('./middleware/auth');
 const cors = require('cors');
+const chessRoutes = require('./chessLogic/routes/chessRoutes');
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 
-// Middleware to allow cross-origin requests (CORS)
+// Middleware for CORS and JSON parsing
 app.use(cors({
-    origin: 'http://localhost:3000', // Your frontend URL
-    methods: 'GET,POST,PUT,DELETE',  // Allow specific HTTP methods
-    credentials: true,  // Allow sending credentials like cookies or auth headers
-    allowedHeaders: 'Content-Type, Authorization, x-auth-token' // Explicitly allow certain headers
-  }));
-  
-
-// Middleware to parse JSON bodies
+  origin: 'http://localhost:3000',
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true,
+  allowedHeaders: 'Content-Type, Authorization, x-auth-token'
+}));
 app.use(express.json());
 
 // Define routes
@@ -26,6 +23,7 @@ app.use('/api/profile', require('./routes/profile'));
 app.use('/api/register', require('./routes/register'));
 app.use('/api/login', require('./routes/login'));
 app.use('/api/token', require('./routes/token'));
+app.use('/api/chess', chessRoutes); // Route for chess move validation and board state
 
 const PORT = process.env.PORT || 4505;
 
